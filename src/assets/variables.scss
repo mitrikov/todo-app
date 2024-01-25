@@ -1,0 +1,58 @@
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+  --c-white: #ffffff;
+  --c-white-soft: #f8f8f8;
+  --c-white-mute: #f2f2f2;
+
+  --c-black: #181818;
+  --c-black-soft: #222222;
+  --c-black-mute: #282828;
+
+  --c-grey: #000000;
+}
+
+/* semantic color variables for this project */
+:root {
+  --color-background: var(--c-white);
+  --color-background-soft: var(--c-white-soft);
+  --color-background-mute: var(--c-white-mute);
+
+  --color-background-black: var(--c-black);
+
+  --color-border: var(--c-divider-light-2);
+  --color-border-hover: var(--c-divider-light-1);
+
+  --color-heading: var(--c-black);
+  --color-text: var(--c-black);
+
+  --color-text-white: var(--c-white);
+
+  --color-icon: var(--c-grey);
+
+  --color-overlay-black: rgba(0, 0, 0, 0.25);
+
+  --border-radius-lg: 14px;
+  --border-radius-sm: 5px;
+
+  --shadow-card: 1px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--c-black);
+    --color-background-soft: var(--c-black-soft);
+    --color-background-mute: var(--c-black-mute);
+
+    --color-background-black: var(--c-white);
+
+    --color-border: var(--c-divider-dark-2);
+    --color-border-hover: var(--c-divider-dark-1);
+
+    --color-heading: var(--c-white);
+    --color-text: var(--c-white);
+
+    --color-text-white: var(--c-black-mute);
+
+    --color-overlay-black: rgba(255, 255, 255, 0.1);
+  }
+}
