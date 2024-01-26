@@ -25,7 +25,7 @@ defineExpose({
 </script>
 
 <template>
-  <form class="todo-modal-form">
+  <div class="todo-modal-form">
     <div class="input-wrapper">
       <label for="title">Задача:</label>
       <input 
@@ -44,7 +44,7 @@ defineExpose({
         v-model="formData.description"
         ></textarea>
     </div>
-  </form>
+  </div>
 </template>
 
 <style lang="scss" scoped>

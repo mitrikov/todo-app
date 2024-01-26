@@ -5,6 +5,15 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const useTodosStore = defineStore('todos', () => {
     const todos = ref<ITodoItem[]>([])
+    const statusFilter = ref<TodoStatuses | null>(null)
+    const bulkMode = ref<boolean>(false)
+    const bulkUuids = ref<string[]>([])
+
+    const getList = () : ITodoItem[] => {
+        let result = todos.value.sort((a, b) => a.status - b.status)
+        if(statusFilter.value !== null) result = result.filter(item => item.status === statusFilter.value)
+        return result
+    } 
 
     const add = (formData : ITodoFormData) => {
         validate(formData)
@@ -28,7 +37,7 @@ export const useTodosStore = defineStore('todos', () => {
 
     const remove = (uuid : string) => {
         const itemIndex = todos.value.findIndex(item => item.uuid === uuid)
-        console.log(itemIndex)
+
         if(itemIndex !== -1) {
             todos.value.splice(itemIndex, 1)
         }
@@ -40,6 +49,27 @@ export const useTodosStore = defineStore('todos', () => {
         if(item) {
             item.status === TodoStatuses.pending ? item.status = TodoStatuses.completed : item.status = TodoStatuses.pending
         }
+        writeToLocalStorage()
+    }
+
+    const select = (uuid : string) => {
+        bulkUuids.value.push(uuid)
+    }
+
+    const deselect = (uuid : string) => {
+        const itemIndex = bulkUuids.value.findIndex(item => item === uuid)
+        if(itemIndex !== -1) {
+            bulkUuids.value.splice(itemIndex, 1)
+        }
+    }
+
+    const deleteSelected = () => {
+        bulkUuids.value.forEach(uuid => {
+            const itemIndex = todos.value.findIndex(item => item.uuid === uuid)
+            if(itemIndex !== -1) {
+                todos.value.splice(itemIndex, 1)
+            }
+        })
         writeToLocalStorage()
     }
 
@@ -69,10 +99,17 @@ export const useTodosStore = defineStore('todos', () => {
 
     return {
         todos,
+        statusFilter,
+        bulkMode,
+        bulkUuids,
+        getList,
         add,
         update,
         remove,
         toggleStatus,
+        select,
+        deselect,
+        deleteSelected,
         readFromLocalStorage,
         writeToLocalStorage
     }

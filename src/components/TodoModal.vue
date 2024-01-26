@@ -17,6 +17,7 @@ const props = defineProps({
   todo: Object as PropType<ITodoItem>
 })
 
+const emit = defineEmits(['delete'])
 
 watch(() => props.todo, () => {
   if(props.todo) action.value = 'update'
@@ -43,6 +44,11 @@ const saveTodo = () => {
   modal.value?.close()
 }
 
+const deleteTodo = (uuid : string) => {
+  emit('delete', uuid)
+  modal.value?.close()
+}
+
 defineExpose({
   open: () => {
     modal.value!.open()
@@ -54,8 +60,16 @@ defineExpose({
   <Modal ref="modal">
     <h2>{{ labels.header[action] }}</h2>
     <TodoModalForm ref="form" :todo="todo" />
-    <button class="button" @click="saveTodo">{{ labels.button[action] }}</button>
+    <div class="buttons-wrapper">
+      <button class="button" v-if="action === 'update'" @click="deleteTodo(todo!.uuid)">Удалить</button>
+      <button class="button" @click="saveTodo">{{ labels.button[action] }}</button>
+    </div>
   </Modal>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.buttons-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+</style>

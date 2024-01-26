@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { TodoStatuses, type ITodoItem } from '@/interfaces'
-import { ref, type PropType } from 'vue'
-import Checkbox from './ui/Checkbox.vue';
+import { ref, type PropType, watch, onMounted, onUpdated } from 'vue'
+import Checkbox from './ui/Checkbox.vue'
+import { useTodosStore } from '@/stores'
+
+const todoStore = useTodosStore()
 
 const props = defineProps({
   item: {
@@ -10,37 +13,72 @@ const props = defineProps({
   }
 })
 
+const selectCheckbox = ref<boolean>(false)
+
+onUpdated(() => {
+  selectCheckbox.value = todoStore.bulkUuids.includes(props.item.uuid)
+})
 // const status = ref<TodoStatuses>(TodoStatuses.pending)
 
-const emit = defineEmits(['delete', 'edit', 'changeStatus'])
+const emit = defineEmits(['delete', 'edit', 'changeStatus', 'select', 'deselect'])
 
-const onCheck = (e : Event) => {
-  // const target = e.target as HTMLInputElement
+const onCheck = (e: Event) => {
   emit('changeStatus')
 }
+
+watch(
+  () => selectCheckbox.value,
+  (nVal) => {
+    nVal ? emit('select') : emit('deselect')
+  }
+)
 </script>
 
 <template>
   <div class="todo-item">
     <div class="todo-item__common">
       <div class="checkbox">
-        <input type="checkbox" @change="onCheck">
+        <input
+          type="checkbox"
+          @change="onCheck"
+          :checked="item.status === TodoStatuses.completed"
+        />
         <!-- <Checkbox /> -->
       </div>
 
-      <div class="todo-item__title" :class="item.status === TodoStatuses.completed ? 'todo-item__title--completed' : ''">
-          {{ item?.title }}
+      <div
+        class="todo-item__title"
+        :class="item.status === TodoStatuses.completed ? 'todo-item__title--completed' : ''"
+      >
+        {{ item?.title }}
       </div>
     </div>
 
-    <div class="todo-item__buttons">
+    <div class="todo-item__buttons" v-if="!todoStore.bulkMode">
       <button>
-        <IconEdit class="todo-item__icon todo-icon--edit" @click="() => { emit('edit', item.uuid) }" />
+        <IconEdit
+          class="todo-item__icon todo-icon--edit"
+          @click="
+            () => {
+              emit('edit', item.uuid)
+            }
+          "
+        />
       </button>
 
       <button>
-        <IconDelete class="todo-item__icon todo-icon--delete" @click="() => {  emit('delete', item.uuid) }" />
+        <IconDelete
+          class="todo-item__icon todo-icon--delete"
+          @click="
+            () => {
+              emit('delete', item.uuid)
+            }
+          "
+        />
       </button>
+    </div>
+    <div class="todo-item__buttons" v-else>
+      <input type="checkbox" v-model="selectCheckbox" />
     </div>
   </div>
 </template>
@@ -63,7 +101,6 @@ const onCheck = (e : Event) => {
 }
 
 .todo-item__title {
-
   &--completed {
     text-decoration: line-through;
   }

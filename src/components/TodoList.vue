@@ -34,14 +34,19 @@ const onRemove = (uuid : string) => {
 <template>
   <div class="todo-list">
     <div class="todo-list__inner" v-if="todosStore.todos.length !== 0">
-      <TodoItem 
-        v-for="item in todosStore.todos" 
-        :key="item.uuid" 
-        :item="item"
-        @delete="onRemove(item.uuid)"
-        @edit="onEdit(item)"
-        @change-status="onStatusChange(item.uuid)"
-        />
+      <TransitionGroup name="list" tag="div">
+        <TodoItem 
+          class="todo-list__item"
+          v-for="item in todosStore.getList()" 
+          :key="item.uuid" 
+          :item="item"
+          @delete="onRemove(item.uuid)"
+          @edit="onEdit(item)"
+          @change-status="onStatusChange(item.uuid)"
+          @select="todosStore.select(item.uuid)"
+          @deselect="todosStore.deselect(item.uuid)"
+          />
+      </TransitionGroup>
     </div>
 
     <div class="todo-list__placeholder" v-else>
@@ -50,7 +55,7 @@ const onRemove = (uuid : string) => {
 
     <Teleport to="#modals">
       <ModalTransitionFade>
-        <TodoModal ref="modal" :todo="currentItem ? currentItem : undefined"/>
+        <TodoModal ref="modal" :todo="currentItem ? currentItem : undefined" @delete="(e) => onRemove(e)"/>
       </ModalTransitionFade>
     </Teleport>
   </div>
@@ -64,10 +69,15 @@ const onRemove = (uuid : string) => {
 }
 
 .todo-list__inner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
   padding: 2rem 0;
+}
+
+.todo-list__item {
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .todo-list__placeholder {
@@ -82,5 +92,23 @@ const onRemove = (uuid : string) => {
   i {
     max-width: 20em;
   }
+}
+
+.list-move, /* apply transition to moving elements */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+  position: absolute;
 }
 </style>
